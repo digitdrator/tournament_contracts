@@ -1,0 +1,85 @@
+archetype level10
+
+constant player_amount: nat = 4
+constant winners_amount: nat = 1
+constant player_cost: tez = 55tz
+variable previus_level: address = @tz1WEtPcXcrxQeT3qQLgBDHTzxZnBzQz3WjB
+
+
+variable player_count: nat = 0
+variable rand_number: nat = 2
+
+
+asset players identified by id {
+  id : nat;
+  player : address;
+}
+
+asset distribute identified by number {
+  number : nat;
+ 
+} /*initialized by{
+    {1;[1,2,3,4]};
+    {2;[2,1,3,4]};
+    {3;[2,3,1,4]};
+    {4;[2,3,4,1]};
+    {5;[2,4,3,1]};
+    {6;[2,4,1,3]};
+    {7;[3,2,1,4]};
+    {8;[3,2,4,1]};
+    {9;[3,1,2,4]};
+    {10;[4,3,2,1]};
+    {11;[4,3,1,2]};
+    {12;[4,1,3,2]};
+    {13;[4,1,2,3]};
+}*/
+
+asset permissions identified by adr{
+    adr : address;
+    amount: nat;
+}
+
+entry addEntry () {
+    require {
+      r0: transferred=player_cost;  
+    }
+    
+    effect{
+
+    if player_count = player_amount then( 
+        transfer 0.66tz to players[rand_number].player;
+        player_count:=0;
+        players.clear();
+        player_count := player_count+1;
+        players.add({ player_count; caller});
+  
+    ) else(
+
+             player_count := player_count+1;
+             players.add({ player_count; caller});
+        );
+    }
+}
+
+entry addPermission (a:address) {
+
+    called by previus_level
+    effect {
+        permissions.addupdate(a,{permissions[a]+=1});
+    }
+}
+
+entry setPreviousLevel (b:address) {
+
+   
+    effect {
+        previus_level:=b;
+    }
+}
+
+entry setRandomNumber (k:nat) {  
+    effect{
+            rand_number:=k;
+    }
+}
+
